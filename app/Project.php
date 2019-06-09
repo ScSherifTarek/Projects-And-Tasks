@@ -10,9 +10,9 @@ class Project extends Model
 {
 	protected $guarded = ['id'];
 
-    protected $dispatchesEvents = [
-        'created' => \App\Events\ProjectCreated::class
-    ];
+    // protected $dispatchesEvents = [
+    //     'created' => \App\Events\ProjectCreated::class
+    // ];
 
     public function tasks()
     {

@@ -47,7 +47,9 @@ class ProjectsController extends Controller
         $attributes['owner_id'] = auth()->id();
         
         $project = Project::create($attributes);
-                
+        
+        auth()->user()->notify(new \App\Notifications\ProjectCreated($project));
+
         return redirect('/projects'); 
     }
 
