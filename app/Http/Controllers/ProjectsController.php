@@ -48,7 +48,7 @@ class ProjectsController extends Controller
         
         $project = Project::create($attributes);
         
-        auth()->user()->notify(new \App\Notifications\ProjectCreated($project));
+        $project->owner->notify(new \App\Notifications\ProjectCreated($project));
 
         return redirect('/projects'); 
     }
