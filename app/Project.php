@@ -9,19 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
 	protected $guarded = ['id'];
-    // protected $fillable = [
-    // 	'title', 'description'
-    // ];
 
-    protected static function boot()
-    {
-        parent::boot();
-        static::created(function($project){
-            Mail::to($project->owner->email)->send(
-                new ProjectCreated($project)
-            );
-        });
-    } 
+    protected $dispatchesEvents = [
+        'created' => \App\Events\ProjectCreated::class
+    ];
+
     public function tasks()
     {
     	return $this->hasMany(Task::class);
@@ -30,10 +22,6 @@ class Project extends Model
     public function addTask($task)
     {
     	return $this->tasks()->create($task);
-        // return Task::create([
-        //     'project_id' => $this->id,
-        //     'description' => $description
-        // ]);
     }
 
     public function owner()

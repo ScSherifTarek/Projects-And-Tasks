@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Project;
 use Illuminate\Http\Request;
+use App\Events\ProjectCreated;
 
 class ProjectsController extends Controller
 {
@@ -42,13 +43,11 @@ class ProjectsController extends Controller
     {
 
         $attributes = $this->validatedProjects();
+
         $attributes['owner_id'] = auth()->id();
+        
         $project = Project::create($attributes);
-        
-        // \Mail::to($project->owner->email)->send(
-        //     new ProjectCreated($project)
-        // );
-        
+                
         return redirect('/projects'); 
     }
 
@@ -60,17 +59,6 @@ class ProjectsController extends Controller
      */
     public function show(Project $project)
     {
-        // all these ways to authorize that this user is authorized to see this project
-        // abort_unless()
-        // abort_if($project->owner_id !== auth()->id(),403);
-        // $this->authorize('update',$project);
-        // if(\Gate::denies('update',$project))
-        // {
-        //     abort(403);
-        // }
-        // abort_if(\Gate::denies('update',$project),403);
-        // abort_unless(\Gate::allows('update',$project),403);
-        // auth()->user()->can('update', $project);
         $this->authorize('update',$project);
         return view('projects.show',compact('project'));
     }
