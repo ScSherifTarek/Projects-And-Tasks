@@ -8,7 +8,7 @@
     </div>
 
     <div class="field control">
-        <textarea class="input {{ $errors->has('description')? 'is-danger':'' }}" name="description" placeholder="Project Description">{{ old('title') }}</textarea>
+        <textarea class="textarea  {{ $errors->has('description')? 'is-danger':'' }}" name="description" placeholder="Project Description">{{ old('title') }}</textarea>
     </div>
 
     <div class="field control">

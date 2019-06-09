@@ -11,18 +11,6 @@
 |
 */
 
-use App\Repositories\UserRepository;
-
-Route::get('/', function(UserRepository $userRepo){
-	dd($userRepo);
-	return 1;
-});
-// Route::get('/', 'PagesController@home');
-
-// Route::get('/contact','PagesController@contact');
-
-// Route::get('/about','PagesController@about');
-
 /**
 	GET /projects (index)
 	GET /projects/{project_id} (show)
@@ -33,14 +21,28 @@ Route::get('/', function(UserRepository $userRepo){
 	GET /projects/create (create)
 	DELETE /projects/{project_id} (destroy)
 **/
+
+// home route
+Route::get('/', function(){
+	return view('welcome');
+});
+
 // project routes
+// Route::resource('projects', 'ProjectsController')->middleware('can:update,project');
 Route::resource('projects', 'ProjectsController');
-Route::get('/projects','ProjectsController@index');
-Route::post('/projects','ProjectsController@store');
-Route::get('/projects/create','ProjectsController@create');
 
+// project tasks routes
+//// create task
 Route::post('/projects/{project}/tasks','ProjectTasksController@store');
-// Route::patch('/tasks/{task}','ProjectTasksController@update');
 
+//// mark task as completed
 Route::post('completed-tasks/{task}', 'CompletedTasksController@complete');
+
+//// mark task as not completed
 Route::delete('completed-tasks/{task}', 'CompletedTasksController@incomplete');
+
+
+// auth routes
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

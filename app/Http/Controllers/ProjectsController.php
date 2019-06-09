@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class ProjectsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +18,7 @@ class ProjectsController extends Controller
      */
     public function index()
     {
-        $projects = Project::all();
+        $projects = auth()->user()->projects;
         return view('projects.index',compact('projects'));
     }
 
@@ -36,24 +40,16 @@ class ProjectsController extends Controller
      */
     public function store(Request $request)
     {
-        Project::create(
-            $request->validate([
-                'title' => ['required','min:3','max:255'],
-                'description' => ['required','min:3']
-            ])
-        );
-        return redirect('/projects');
 
-        // $validated = $this->validateMyRequest($request);
-        // if($validated['valid'])
-        // {
-        //     $campaign = Campaign::create(request()->all());
-        //     return new CampaignResource($campaign);
-        // }
-        // else
-        // {
-        //     return $validated['errors'];
-        // }
+        $attributes = $this->validatedProjects();
+        $attributes['owner_id'] = auth()->id();
+        $project = Project::create($attributes);
+        
+        // \Mail::to($project->owner->email)->send(
+        //     new ProjectCreated($project)
+        // );
+        
+        return redirect('/projects'); 
     }
 
     /**
@@ -64,6 +60,18 @@ class ProjectsController extends Controller
      */
     public function show(Project $project)
     {
+        // all these ways to authorize that this user is authorized to see this project
+        // abort_unless()
+        // abort_if($project->owner_id !== auth()->id(),403);
+        // $this->authorize('update',$project);
+        // if(\Gate::denies('update',$project))
+        // {
+        //     abort(403);
+        // }
+        // abort_if(\Gate::denies('update',$project),403);
+        // abort_unless(\Gate::allows('update',$project),403);
+        // auth()->user()->can('update', $project);
+        $this->authorize('update',$project);
         return view('projects.show',compact('project'));
     }
 
@@ -75,6 +83,7 @@ class ProjectsController extends Controller
      */
     public function edit(Project $project)
     {
+        $this->authorize('update',$project);
         return view('projects.edit',compact('project'));
     }
 
@@ -87,12 +96,10 @@ class ProjectsController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-         $project->update(
-            $request->validate([
-                'title' => ['required','min:3','max:255'],
-                'description' => ['required','min:3']
-            ])
-         );
+        $this->authorize('update',$project);
+        $project->update(
+            $this->validatedProjects()
+        );
         return redirect('/projects');
     }
 
@@ -104,8 +111,17 @@ class ProjectsController extends Controller
      */
     public function destroy(Project $project)
     {
+        $this->authorize('update',$project);
         $project->delete();
         return redirect('/projects');
 
+    }
+
+    protected function validatedProjects()
+    {
+        return request()->validate([
+            'title' => ['required','min:3','max:255'],
+            'description' => ['required','min:3']
+        ]);
     }
 }
